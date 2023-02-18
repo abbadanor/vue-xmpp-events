@@ -32,4 +32,17 @@ export const useStore = defineStore('main', {
       connected: false,
     } as RootState
   },
+  getters: {
+    getMessagesFromJid: (state) => {
+      return (jid: string) => state.messages.filter((message) => {
+        return message.from?.jid === jid || message.to?.jid === jid
+      })
+    },
+    getLastMessageFromJid: (state) => {
+      // @ts-expect-error pajas. find är ett property men inte findLast
+      return (jid: string) => state.messages.findLast((message: Message) => {
+        return message.from?.jid === jid || message.to?.jid === jid
+      })
+    },
+  },
 })

@@ -4,7 +4,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 
 const props = defineProps<{
   outgoing: boolean
-  sender: string
+  sender?: string
   time: Date
 }>()
 

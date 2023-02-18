@@ -14,6 +14,7 @@ const XMPPService: XMPPServiceI = {
   store: null,
 
   connect() {
+    console.log('connected!')
     this.store = useStore()
     this.client = XMPP.createClient({
       jid: 'adam@chat.a-nord.se',

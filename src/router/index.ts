@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Conversations from '../pages/Conversations.vue'
+import Home from '../pages/Home.vue'
 
 const routes = [
-  { path: '/conversations/:jid', component: Conversations },
+  { path: '/conversations/:jid', component: Home },
 ]
 
 const router = createRouter({
