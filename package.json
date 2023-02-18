@@ -11,6 +11,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "dayjs": "^1.11.7",
     "events": "^3.3.0",
     "pinia": "^2.0.30",
     "stanza": "^12.18.0",
@@ -20,6 +21,8 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.35.2",
+    "@iconify/vue": "^4.1.0",
+    "@tailwindcss/forms": "^0.5.3",
     "@vitejs/plugin-vue": "^4.0.0",
     "autoprefixer": "^10.4.13",
     "eslint": "^8.34.0",

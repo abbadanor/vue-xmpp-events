@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { ref, watch } from 'vue'
+import { Icon } from '@iconify/vue'
 import { useStore } from '../store'
+import { useXMPPSocket } from '../composables/XMPPSocket'
 import ChatBubble from '../components/ChatBubble.vue'
+
+const store = useStore()
+const xmppSocket = useXMPPSocket(store)
 
 interface Message {
   body: string
@@ -21,8 +26,14 @@ interface Message {
 }
 
 const route = useRoute()
-const store = useStore()
 const messages = ref<Message[]>([])
+const chatBody = ref('')
+
+function sendChat() {
+  console.log(chatBody.value)
+  xmppSocket.sendChat(chatBody.value, route.params.jid[0])
+  chatBody.value = ''
+}
 
 watch([store.messages, route], () => {
   if (store.messages.length === 0) {
@@ -30,16 +41,18 @@ watch([store.messages, route], () => {
   }
   messages.value = store.messages.filter((message) => {
     return message.from.jid === route.params.jid || message.to.jid === route.params.jid
-  }).sort((a, b) => {
-    return a.delay.getTime() - b.delay.getTime()
   })
 })
 </script>
 
 <template>
-  <div v-if="messages.length > 0" class="w-full">
-    <ChatBubble v-for="message in messages" :key="message.id" :outgoing="message.from.jid === store.jid" :sender="message.from.jid.split('@')[0]" :time="message.delay">
+  <div v-if="messages.length > 0" class="w-full min-h-screen flex flex-col justify-end">
+    <ChatBubble v-for="message in messages" :key="message.id" :outgoing="message.from.jid === store.jid" :sender="message.from.jid.split('@')[0] || message.to.jid.split('@')[0]" :time="message.delay">
       {{ message.body }}
     </ChatBubble>
+    <form class="py-2 flex items-center" @submit.prevent>
+      <textarea v-model="chatBody" class="w-full rounded-md resize-none" name="hehe" rows="1" placeholder="Type a new message" />
+      <Icon class="h-5 w-5 ml-2 text-gray-900 cursor-pointer" icon="ph:paper-plane-right-fill" @click="sendChat" />
+    </form>
   </div>
 </template>
