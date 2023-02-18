@@ -3,13 +3,13 @@ import { defineStore } from 'pinia'
 interface Message {
   body: string
   delay: Date
-  from: {
+  from?: {
     jid: string
     resource: string
     fullJid: string
   }
   id: string
-  to: {
+  to?: {
     jid: string
     resource: string
     fullJid: string

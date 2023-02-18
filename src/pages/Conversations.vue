@@ -3,11 +3,10 @@ import { useRoute } from 'vue-router'
 import { ref, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useStore } from '../store'
-import { useXMPPSocket } from '../composables/XMPPSocket'
 import ChatBubble from '../components/ChatBubble.vue'
+import XMPPService from '../services/xmpp.service'
 
 const store = useStore()
-const xmppSocket = useXMPPSocket(store)
 
 interface Message {
   body: string
@@ -30,8 +29,7 @@ const messages = ref<Message[]>([])
 const chatBody = ref('')
 
 function sendChat() {
-  console.log(chatBody.value)
-  xmppSocket.sendChat(chatBody.value, route.params.jid[0])
+  XMPPService.sendChat(chatBody.value, route.params.jid as string)
   chatBody.value = ''
 }
 

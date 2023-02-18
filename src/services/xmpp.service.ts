@@ -1,11 +1,21 @@
 import * as XMPP from 'stanza'
-import type { useStore } from '../store'
+import { useStore } from '../store'
 
-export function useXMPPSocket(store: ReturnType<typeof useStore>) {
-  let client: XMPP.Agent
+interface XMPPServiceI {
+  client: XMPP.Agent | null
+  store: ReturnType<typeof useStore> | null
+  connect(): void
+  sendChat(body: string, to: string): void
+}
 
-  const connect = () => {
-    client = XMPP.createClient({
+const XMPPService: XMPPServiceI = {
+
+  client: null,
+  store: null,
+
+  connect() {
+    this.store = useStore()
+    this.client = XMPP.createClient({
       jid: 'adam@chat.a-nord.se',
       password: 'password',
       transports: {
@@ -14,7 +24,7 @@ export function useXMPPSocket(store: ReturnType<typeof useStore>) {
       },
     })
 
-    client.on('*', (name: string, data: any) => {
+    this.client.on('*', (name: string, data: any) => {
       if (data) {
         if (typeof (data) === 'string') {
           console.debug(name, data)
@@ -25,12 +35,12 @@ export function useXMPPSocket(store: ReturnType<typeof useStore>) {
       }
     })
 
-    client.on('mam:item', async (receivedMessage) => {
+    this.client.on('mam:item', async (receivedMessage) => {
       const messageItem = receivedMessage.archive?.item.message
       if (messageItem?.type !== 'chat') {
         return
       }
-      store.messages.push({
+      this.store!.messages.push({
         body: messageItem.body!,
         delay: receivedMessage.archive!.item.delay!.timestamp,
         from: {
@@ -47,42 +57,40 @@ export function useXMPPSocket(store: ReturnType<typeof useStore>) {
       })
     })
 
-    client.on('session:started', async () => {
+    this.client.on('session:started', async () => {
       try {
         console.log('Enabling carbons...')
-        await client.enableCarbons()
+        await this.client!.enableCarbons()
       }
       catch (err) {
         console.log('Server does not support carbons')
       }
 
-      const rosterResult = await client.getRoster()
+      const rosterResult = await this.client!.getRoster()
 
-      store.roster = rosterResult.items.map(item => item.jid)
+      this.store!.roster = rosterResult.items.map(item => item.jid)
 
-      client.updateCaps()
-      client.sendPresence({
-        legacyCapabilities: client.disco.getCaps(),
+      this.client!.updateCaps()
+      this.client!.sendPresence({
+        legacyCapabilities: this.client!.disco.getCaps(),
       })
-      await client.searchHistory('adam@chat.a-nord.se', {})
-      store.connected = true
+      await this.client!.searchHistory('adam@chat.a-nord.se', {})
+      this.store!.connected = true
     })
 
-    client.connect()
+    this.client.connect()
 
     return false
-  }
+  },
 
-  const sendChat = (body: string, to: string) => {
-    client.sendMessage({
+  sendChat(body, to) {
+    this.client!.sendMessage({
       type: 'chat',
       body,
       to,
     })
-  }
+  },
 
-  return {
-    connect,
-    sendChat,
-  }
 }
+
+export default XMPPService

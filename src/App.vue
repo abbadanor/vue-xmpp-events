@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useXMPPSocket } from './composables/XMPPSocket'
 import { useStore } from './store'
+import XMPPService from './services/xmpp.service'
 const store = useStore()
-
-const xmppSocket = useXMPPSocket(store)
 
 function getLastMessageFromJid(jid: string) {
   // @ts-expect-error jävla pajas. find är ett property men inte findLast
@@ -14,7 +12,7 @@ function getLastMessageFromJid(jid: string) {
 }
 
 onMounted(() => {
-  xmppSocket.connect()
+  XMPPService.connect()
 })
 </script>
 
